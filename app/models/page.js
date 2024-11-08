@@ -1,16 +1,9 @@
-import { getModels } from "../lib/action";
+import QuestionList from "./QuestionList";
 
 export default async function Models() {
-  const models = await getModels();
-
   return (
     <>
-      <h1>Models</h1>
-      <ul>
-        {models.data.map((model) => (
-          <li key={model.id}>{model.id}</li>
-        ))}
-      </ul>
+      <QuestionList></QuestionList>
     </>
   );
 }
