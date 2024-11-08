@@ -1,14 +1,15 @@
-export async function getModels() {
+export async function getModel() {
+  const modelId = process.env.MODEL_ID;
   try {
-    const data = await fetch("https://api.up2tom.com/v3/models", {
+    const data = await fetch(`https://api.up2tom.com/v3/models/${modelId}`, {
       headers: {
-        Authorization: `Token ${process.env.DEMO_KEY}`,
+        Authorization: `Token ${process.env.API_KEY}`,
         "Content-Type": "application/vnd.api+json",
       },
     });
-    const models = await data.json();
-    console.log(models);
-    return models;
+    const model = await data.json();
+    console.log(model.data);
+    return model.data;
   } catch (error) {
     console.log(error);
   }
