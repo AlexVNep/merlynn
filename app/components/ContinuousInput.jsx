@@ -6,10 +6,11 @@ export default async function ContInput({
   onChange,
   min,
   max,
+  htmlFor,
 }) {
   return (
     <>
-      {label && <label htmlFor="input-field">{label}</label>}
+      {label && <label htmlFor={htmlFor}>{label}</label>}
       <input
         type={type}
         value={value}
