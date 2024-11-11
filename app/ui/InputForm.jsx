@@ -14,7 +14,7 @@ export default async function InputForm({ onChange }) {
 
   return (
     <div>
-      <form action="">
+      <form action={formAction}>
         <h2>Health Questionnaire</h2>
         {contMetadat.map((attribute) => (
           <ContInput
@@ -25,16 +25,17 @@ export default async function InputForm({ onChange }) {
             onChange={onChange}
             min={attribute.domain.lower}
             max={attribute.domain.upper}
+            htmlFor={attribute.name}
           />
         ))}
         {nominalMetadata.map((attribute) => (
           <NomInput
             key={attribute.name}
-            //   value={value}
             label={attribute.question}
             option={attribute.domain.values}
             name={attribute.name}
             onChange={onChange}
+            htmlFor={attribute.name}
           />
         ))}
         <button type="submit">Submit</button>
