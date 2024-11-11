@@ -1,10 +1,10 @@
-import QuestionList from "./models/QuestionList";
+import InputForm from "./ui/InputForm";
 
 export default function Home() {
   return (
     <>
       <h1>Home</h1>
-      <QuestionList></QuestionList>
+      <InputForm></InputForm>
     </>
   );
 }
