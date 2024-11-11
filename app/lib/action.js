@@ -1,3 +1,7 @@
+"use server";
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
+
 export async function getModel() {
   const modelId = process.env.MODEL_ID;
   try {
