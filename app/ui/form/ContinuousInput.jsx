@@ -1,4 +1,5 @@
-export default async function ContInput({
+"use client";
+export default function ContInput({
   value,
   label,
   name,

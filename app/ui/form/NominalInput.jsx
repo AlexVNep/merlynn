@@ -1,4 +1,5 @@
-export default async function NomInput({
+"use client";
+export default function NomInput({
   value,
   label,
   option,
