@@ -12,6 +12,7 @@ export default async function ContInput({
     <>
       {label && <label htmlFor={htmlFor}>{label}</label>}
       <input
+        className="text-black"
         type={type}
         value={value}
         name={name}

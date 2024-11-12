@@ -1,10 +1,8 @@
-import ContInput from "../components/ContinuousInput";
-import NomInput from "../components/NominalInput";
-import { getModel } from "../lib/action";
+import ContInput from "./ContinuousInput";
+import NomInput from "./NominalInput";
 
-export default async function InputForm({ onChange }) {
-  const data = await getModel();
-  const metadata = data.attributes.metadata.attributes;
+export default function InputForm({ formData = {}, onChange }) {
+  const metadata = formData.attributes.metadata.attributes;
   const contMetadat = metadata.filter(
     (attribute) => attribute.type === "Continuous"
   );
@@ -14,7 +12,7 @@ export default async function InputForm({ onChange }) {
 
   return (
     <div>
-      <form action={formAction}>
+      <form>
         <h2>Health Questionnaire</h2>
         {contMetadat.map((attribute) => (
           <ContInput
