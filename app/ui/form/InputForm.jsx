@@ -1,18 +1,34 @@
+"use client";
+
 import ContInput from "./ContinuousInput";
 import NomInput from "./NominalInput";
+import { useActionState } from "react";
+import { formSubmit } from "@/app/lib/action";
+
+const initialState = {
+  data: null,
+  zodErrors: null,
+  message: null,
+};
 
 export default function InputForm({ formData = {}, onChange }) {
-  const metadata = formData.attributes.metadata.attributes;
-  const contMetadat = metadata.filter(
-    (attribute) => attribute.type === "Continuous"
-  );
-  const nominalMetadata = metadata.filter(
-    (attribute) => attribute.type === "Nominal"
+  const [state, formAction, isPending] = useActionState(
+    formSubmit,
+    initialState
   );
 
+  const data = formData.attributes.metadata.attributes;
+  const contMetadat = data.filter(
+    (attribute) => attribute.type === "Continuous"
+  );
+  const nominalMetadata = data.filter(
+    (attribute) => attribute.type === "Nominal"
+  );
+  console.log(state, "client");
   return (
     <div>
-      <form>
+      {state.message}
+      <form action={formAction}>
         <h2>Health Questionnaire</h2>
         {contMetadat.map((attribute) => (
           <ContInput
@@ -36,7 +52,9 @@ export default function InputForm({ formData = {}, onChange }) {
             htmlFor={attribute.name}
           />
         ))}
-        <button type="submit">Submit</button>
+        <button type="submit" aria-disabled={isPending}>
+          Submit
+        </button>
       </form>
     </div>
   );
