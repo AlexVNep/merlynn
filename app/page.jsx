@@ -3,11 +3,11 @@ import { getModel } from "./lib/action";
 
 export default async function Home() {
   const data = await getModel();
-
+  const metadata = data;
   return (
     <>
       <h1>Home</h1>
-      <InputForm formData={data}></InputForm>
+      <InputForm formData={metadata}></InputForm>
     </>
   );
 }
