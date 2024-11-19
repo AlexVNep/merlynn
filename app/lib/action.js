@@ -1,6 +1,15 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import mongoose from "mongoose";
+import Decision from "../models/Decision";
+
+main().catch((err) => console.log(err));
+
+async function main() {
+  const MONGODB_URI = process.env.MONGODB_URI;
+  await mongoose.connect(MONGODB_URI);
+}
 
 const modelId = process.env.MODEL_ID;
 export async function getModel() {
@@ -20,7 +29,6 @@ export async function getModel() {
 }
 
 export async function formSubmit(prevState, formData) {
-  console.log("Hello I almost function");
   const schema = z.object({
     INPUTVAR1: z.coerce.number().gte(-10).lte(45, {
       required_error: "Input is required",
@@ -70,7 +78,7 @@ export async function formSubmit(prevState, formData) {
       message: "Failed to submit",
     };
   }
-  console.log(validatedFields.data);
+  // console.log(validatedFields.data);
 
   try {
     const res = await fetch(
@@ -105,7 +113,6 @@ export async function formSubmit(prevState, formData) {
     const data = await res.json();
     console.log(data);
     return {
-      ...prevState,
       data: data,
       message: "Good request",
     };
