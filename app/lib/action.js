@@ -113,7 +113,11 @@ export async function formSubmit(prevState, formData) {
     const data = await res.json();
     console.log(data);
 
-    createDecision(data);
+    if (data.errors) {
+      console.log("This is the working error");
+    } else {
+      createDecision(data);
+    }
 
     return {
       ...prevState,
@@ -131,6 +135,18 @@ async function createDecision(data) {
   const test = await Decision.create({
     confidence: data.data.attributes.confidence,
     decision: data.data.attributes.decision,
+    createdAt: data.data.attributes.timestamp,
+    input: {
+      temperature: data.data.attributes.input.INPUTVAR1,
+      gender: data.data.attributes.input.INPUTVAR2,
+      age: data.data.attributes.input.INPUTVAR3,
+      caffeineSensitive: data.data.attributes.input.INPUTVAR4,
+      timeOfDay: data.data.attributes.input.INPUTVAR5,
+      INPUTVpregnanatAR6: data.data.attributes.input.INPUTVAR6,
+      healthConcious: data.data.attributes.input.INPUTVAR7,
+      drinksPerDay: data.data.attributes.input.INPUTVAR8,
+      drinksToday: data.data.attributes.input.INPUTVAR9,
+    },
   });
 
   console.log(test);
