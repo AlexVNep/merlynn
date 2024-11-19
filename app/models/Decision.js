@@ -5,8 +5,21 @@ const { Schema, model, models } = mongoose;
 const decisionSchema = new Schema({
   confidence: Number,
   decision: String,
+  createdAt: String,
+  input: {
+    temperature: Number,
+    gender: String,
+    age: Number,
+    caffeineSensitive: String,
+    timeOfDay: String,
+    pregnanat: String,
+    healthConcious: String,
+    drinksPerDay: Number,
+    drinksToday: Number,
+  },
 });
 
-const Decision = models.Decision || model("Decision", decisionSchema); //ensures the Decision model is only defined once, even if Decision.js is imported multiple times
+const TomDecicions =
+  models.TomDecicions || model("TomDecicions", decisionSchema); //ensures the Decision model is only defined once, even if Decision.js is imported multiple times
 
-export default Decision;
+export default TomDecicions;
