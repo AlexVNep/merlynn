@@ -11,15 +11,6 @@ async function main() {
   await mongoose.connect(MONGODB_URI);
 }
 
-async function createDecision() {
-  const test = await Decision.create({
-    confidence: 1,
-    decision: "test",
-  });
-
-  console.log(test);
-}
-
 const modelId = process.env.MODEL_ID;
 export async function getModel() {
   try {
@@ -122,7 +113,7 @@ export async function formSubmit(prevState, formData) {
     const data = await res.json();
     console.log(data);
 
-    createDecision();
+    createDecision(data);
 
     return {
       ...prevState,
@@ -134,4 +125,13 @@ export async function formSubmit(prevState, formData) {
       message: "Error Error: Failed",
     };
   }
+}
+
+async function createDecision(data) {
+  const test = await Decision.create({
+    confidence: data.data.attributes.confidence,
+    decision: data.data.attributes.decision,
+  });
+
+  console.log(test);
 }
