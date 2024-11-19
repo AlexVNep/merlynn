@@ -25,9 +25,9 @@ export default function InputForm({ formData = {}, onChange }) {
     (attribute) => attribute.type === "Nominal"
   );
   console.log(state, "client");
+
   return (
     <div>
-      {state.message}
       <form action={formAction}>
         <h2>Health Questionnaire</h2>
         {contMetadat.map((attribute) => (
@@ -56,6 +56,18 @@ export default function InputForm({ formData = {}, onChange }) {
           Submit
         </button>
       </form>
+
+      {state.message === "Good request" ? (
+        <div>
+          <p>Decision: {state.data.data.attributes.decision}</p>
+          <p>confidence: {state.data.data.attributes.confidence}</p>
+          <p>
+            Reason: Because the number of drinks you consume per day is{" "}
+            {state.data.data.attributes.reasons[0].antecedent.threshold} or less
+          </p>
+          <button>Clear</button>
+        </div>
+      ) : null}
     </div>
   );
 }
