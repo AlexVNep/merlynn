@@ -57,7 +57,7 @@ export default function InputForm({ formData = {}, onChange }) {
         </button>
       </form>
 
-      {state.message === "Good request" ? (
+      {state.message === "Good request" && state.data.data ? (
         <div>
           <p>Decision: {state.data.data.attributes.decision}</p>
           <p>confidence: {state.data.data.attributes.confidence}</p>
@@ -66,6 +66,12 @@ export default function InputForm({ formData = {}, onChange }) {
             {state.data.data.attributes.reasons[0].antecedent.threshold} or less
           </p>
           <button>Clear</button>
+        </div>
+      ) : null}
+      {state.message === "Good request" && state.data.errors ? (
+        <div>
+          <p>{state.data.errors[0].title}</p>
+          <p>{state.data.errors[0].detail}</p>
         </div>
       ) : null}
     </div>
