@@ -63,8 +63,10 @@ export default function InputForm({ formData = {}, onChange }) {
           <p>confidence: {state.data.data.attributes.confidence}</p>
           <p>
             Reason: Because the number of drinks you consume per day is{" "}
-            {state.data.data.attributes.reasons[0].antecedent.threshold} or less
+            {state.data.data.attributes.reasons?.[0]?.antecedent?.threshold ?? // Nullish coalescing operator (??)
+              "greater than 1"}
           </p>
+
           <button>Clear</button>
         </div>
       ) : null}
