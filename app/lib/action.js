@@ -2,7 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import mongoose from "mongoose";
-import Decision from "../models/Decision";
+import TomDecicions from "../models/Decision";
 
 main().catch((err) => console.log(err));
 
@@ -132,7 +132,7 @@ export async function formSubmit(prevState, formData) {
 }
 
 async function createDecision(data) {
-  const test = await Decision.create({
+  const test = await TomDecicions.create({
     confidence: data.data.attributes.confidence,
     decision: data.data.attributes.decision,
     createdAt: data.data.attributes.timestamp,
