@@ -1,3 +1,4 @@
+import DecisionsTable from "@/app/ui/decisions/table";
 export default async function Page() {
   return (
     <main>
@@ -9,7 +10,7 @@ export default async function Page() {
         {/* Show 10 decisions at a time taken from the database
           Add navigation buttons to be taken to FORM, HOME(DASHBOARD), DECISIONS and CREATEUSER
           */}
-        {/* <Table></Table> */}
+        <DecisionsTable></DecisionsTable>
       </div>
     </main>
   );
