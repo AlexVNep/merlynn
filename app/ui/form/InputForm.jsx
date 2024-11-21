@@ -29,7 +29,6 @@ export default function InputForm({ formData = {}, onChange }) {
   return (
     <div>
       <form action={formAction}>
-        <h2>Health Questionnaire</h2>
         {contMetadata.map((attribute) => (
           <ContInput
             key={attribute.name}
@@ -52,7 +51,11 @@ export default function InputForm({ formData = {}, onChange }) {
             htmlFor={attribute.name}
           />
         ))}
-        <button type="submit" aria-disabled={isPending}>
+        <button
+          className="flex h-10  mt-4 items-center rounded-lg bg-blue-500 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 active:bg-blue-600 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
+          type="submit"
+          aria-disabled={isPending}
+        >
           Submit
         </button>
       </form>

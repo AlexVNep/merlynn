@@ -11,9 +11,16 @@ export default function ContInput({
 }) {
   return (
     <>
-      {label && <label htmlFor={htmlFor}>{label}</label>}
+      {label && (
+        <label
+          className="mb-2 mt-2 block text-sm font-medium"
+          htmlFor={htmlFor}
+        >
+          {label}
+        </label>
+      )}
       <input
-        className="text-black"
+        className="text-black rounded-md border border-gray-200"
         type={type}
         value={value}
         name={name}
