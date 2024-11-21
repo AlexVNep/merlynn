@@ -18,23 +18,23 @@ export default function InputForm({ formData = {}, onChange }) {
   );
 
   const data = formData.attributes.metadata.attributes;
-  const contMetadat = data.filter(
+  const contMetadata = data.filter(
     (attribute) => attribute.type === "Continuous"
   );
   const nominalMetadata = data.filter(
     (attribute) => attribute.type === "Nominal"
   );
-  console.log(state, "client");
+  console.log(state);
 
   return (
     <div>
       <form action={formAction}>
         <h2>Health Questionnaire</h2>
-        {contMetadat.map((attribute) => (
+        {contMetadata.map((attribute) => (
           <ContInput
             key={attribute.name}
             type="number"
-            label={attribute.question}
+            label={`${attribute.question}: `}
             name={attribute.name}
             onChange={onChange}
             min={attribute.domain.lower}
@@ -45,7 +45,7 @@ export default function InputForm({ formData = {}, onChange }) {
         {nominalMetadata.map((attribute) => (
           <NomInput
             key={attribute.name}
-            label={attribute.question}
+            label={`${attribute.question}: `}
             option={attribute.domain.values}
             name={attribute.name}
             onChange={onChange}
