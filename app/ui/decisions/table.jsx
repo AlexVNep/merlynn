@@ -1,17 +1,9 @@
 import { fetchFilteredDecisions } from "@/app/lib/data";
-import Image from "next/image";
-import { FaceSmileIcon } from "@heroicons/react/24/outline";
 
 export default async function DecisionsTable() {
   const decisions = JSON.parse(await fetchFilteredDecisions());
 
   console.log("Decisions in Table:", decisions); // Debugging
-
-  const icons = [
-    {
-      icon: FaceSmileIcon,
-    },
-  ];
 
   if (decisions && decisions.length > 0) {
     return (
@@ -27,13 +19,6 @@ export default async function DecisionsTable() {
                   <div className="flex items-center justify-between border-b pb-4">
                     <div>
                       <div className="mb-2 flex items-center">
-                        <Image
-                          src="/next.svg"
-                          className="mr-2 rounded-full"
-                          width={28}
-                          height={28}
-                          alt={`${decision._id}'s profile picture`}
-                        />
                         <p>{decision._id}</p>
                       </div>
                       <p className="text-sm text-gray-500">
@@ -73,13 +58,6 @@ export default async function DecisionsTable() {
                   >
                     <td className="whitespace-nowrap py-3 pl-6 pr-3">
                       <div className="flex items-center gap-3">
-                        <Image
-                          src="/next.svg"
-                          className="rounded-full"
-                          width={28}
-                          height={28}
-                          alt={`${decision._id}'s profile picture`}
-                        />
                         <p>{decision._id}</p>
                       </div>
                     </td>
