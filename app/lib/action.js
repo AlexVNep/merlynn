@@ -32,12 +32,14 @@ export async function formSubmit(prevState, formData) {
   const schema = z.object({
     INPUTVAR1: z.coerce.number().gte(-10).lte(45, {
       required_error: "Input is required",
+      invalid_type_error: "Please input a temperature",
     }),
     INPUTVAR2: z.string({
       required_error: "Input is required",
     }),
     INPUTVAR3: z.coerce.number().gte(1).lte(90, {
       required_error: "Input is required",
+      invalid_type_error: "Please input an age",
     }),
     INPUTVAR4: z.string({
       required_error: "Input is required",
@@ -53,9 +55,11 @@ export async function formSubmit(prevState, formData) {
     }),
     INPUTVAR8: z.coerce.number().gte(1).lte(20, {
       required_error: "Input is required",
+      invalid_type_error: "Invalid number",
     }),
     INPUTVAR9: z.coerce.number().gte(1).lte(20, {
       required_error: "Input is required",
+      invalid_type_error: "Invalid number",
     }),
   });
 
