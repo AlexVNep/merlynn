@@ -1,5 +1,6 @@
 "use server";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import mongoose from "mongoose";
 import TomDecicions from "../models/Decision";
@@ -208,4 +209,7 @@ export async function createUserAction(state, formData) {
       message: "An error occurred while creating your account.",
     };
   }
+
+  revalidatePath("/login");
+  redirect("/login");
 }
