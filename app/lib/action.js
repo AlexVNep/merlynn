@@ -6,6 +6,9 @@ import mongoose from "mongoose";
 import TomDecicions from "../models/Decision";
 import User from "../models/User";
 import bcrypt from "bcryptjs";
+import { createSession } from "@/app/lib/session";
+import { cookies } from "next/headers";
+import { deleteSession } from "@/app/lib/session";
 
 main().catch((err) => console.log(err));
 
@@ -210,6 +213,12 @@ export async function createUserAction(state, formData) {
     };
   }
 
-  revalidatePath("/login");
+  await createSession({ _id: user._id });
+
+  redirect("/dashboard");
+}
+
+export async function logout() {
+  deleteSession();
   redirect("/login");
 }
