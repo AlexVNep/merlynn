@@ -6,9 +6,11 @@ import mongoose from "mongoose";
 import TomDecicions from "../models/Decision";
 import User from "../models/User";
 import bcrypt from "bcryptjs";
-import { createSession } from "@/app/lib/session";
+import { createSession } from "/app/lib/session";
 import { cookies } from "next/headers";
-import { deleteSession } from "@/app/lib/session";
+import { deleteSession } from "/app/lib/session";
+import { signIn } from "/auth";
+import { AuthError } from "next-auth";
 
 main().catch((err) => console.log(err));
 
@@ -221,4 +223,20 @@ export async function createUserAction(state, formData) {
 export async function logout() {
   deleteSession();
   redirect("/login");
+}
+
+export async function authenticate(prevState, formData) {
+  try {
+    await signIn("credentials", formData);
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case "CredentialsSignin":
+          return "Invalid credentials.";
+        default:
+          return "Something went wrong.";
+      }
+    }
+    throw error;
+  }
 }

@@ -10,7 +10,6 @@ import { ArrowRightIcon } from "@heroicons/react/20/solid";
 import { useActionState } from "react";
 import Link from "next/link";
 import { createUserAction } from "../lib/action";
-// import { authenticate } from "@/app/lib/actions";
 
 export default function SignupForm() {
   const initialState = {
