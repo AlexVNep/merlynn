@@ -22,7 +22,11 @@ const links = [
     href: "/dashboard/form",
     icon: DocumentPlusIcon,
   },
-  { name: "Users", href: "/dashboard/users", icon: UserGroupIcon },
+  {
+    name: "Batch Processing ",
+    href: "/dashboard/batchprocessing",
+    icon: UserGroupIcon,
+  },
 ];
 
 export default function NavLinks() {
