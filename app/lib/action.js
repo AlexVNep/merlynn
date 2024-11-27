@@ -19,14 +19,34 @@ async function main() {
   await mongoose.connect(MONGODB_URI);
 }
 
-const modelId = process.env.MODEL_ID;
+export async function getAllModels() {
+  try {
+    const data = await fetch(`https://api.up2tom.com/v3/models`, {
+      headers: {
+        Authorization: `Token ${process.env.API_KEY}`,
+        "Content-Type": "application/vnd.api+json",
+      },
+      method: "GET",
+    });
+    const models = await data.json();
+    // console.log(models);
+    return models;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 export async function getModel() {
   try {
+    const allModels = await getAllModels();
+    const modelId = allModels.data[2].id;
+    console.log(modelId);
     const data = await fetch(`https://api.up2tom.com/v3/models/${modelId}`, {
       headers: {
         Authorization: `Token ${process.env.API_KEY}`,
         "Content-Type": "application/vnd.api+json",
       },
+      method: "GET",
     });
     const model = await data.json();
     console.log(model.data);
@@ -225,7 +245,7 @@ export async function logout() {
   redirect("/login");
 }
 
-export async function authenticate(prevState, formData) {
+export async function authenticate(prevState) {
   try {
     await signIn("credentials", formData);
   } catch (error) {
@@ -238,5 +258,65 @@ export async function authenticate(prevState, formData) {
       }
     }
     throw error;
+  }
+}
+
+export async function batchSubmit(prevState, formData) {
+  const schema = z.object({
+    model: z.string({ message: "Select a model" }),
+    file: z.any({ message: "A valid file is required" }),
+  });
+
+  try {
+    const validatedFields = schema.safeParse({
+      file: formData.get("file"),
+      model: formData.get("model"),
+    });
+    const model = formData.get("model");
+    console.log(model);
+
+    const res = await fetch(`https://api.up2tom.com/v3/batch/${model}`, {
+      headers: {
+        Authorization: `Token ${process.env.API_KEY}`,
+      },
+      method: "POST",
+      body: formData,
+    });
+
+    // Check for non-success HTTP status codes
+    if (!res.ok) {
+      const errorText = await res.text(); // Read the raw response text
+      console.error("Error Response:", errorText);
+      throw new Error(`HTTP Error: ${res.status} - ${res.statusText}`);
+    }
+
+    // get JSON response
+    const data = await res.json();
+    console.log("API Response:", data);
+
+    if (data.errors) {
+      console.error("API returned errors:", data.errors);
+    }
+
+    return {
+      ...prevState,
+      data: data,
+      message: "Request was successful",
+    };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      console.error("Validation errors:", error.errors);
+      return {
+        message: "Validation failed",
+        errors: error.errors,
+      };
+    }
+
+    // Handle fetch or other runtime errors
+    console.error("An error occurred:", error);
+    return {
+      message: "Error: Failed to make the request",
+      error,
+    };
   }
 }
