@@ -1,13 +1,17 @@
-import InputForm from "/app/ui/form/InputForm";
-import { getModel } from "/app/lib/action";
+import { getModel } from "@/app/lib/action";
+import InputForm from "@/app/ui/form/InputForm";
+import { getAllModels } from "/app/lib/action";
 
-export default async function Home() {
+export default async function Page({}) {
+  const modelsResponse = await getAllModels();
+  const models = modelsResponse.data || [];
   const data = await getModel();
   const metadata = data;
+
   return (
     <>
-      <h1>FORM</h1>
-      <InputForm formData={metadata}></InputForm>
+      <InputForm formData={metadata} models={models}></InputForm>
     </>
   );
 }
+//

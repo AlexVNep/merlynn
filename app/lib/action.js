@@ -36,11 +36,26 @@ export async function getAllModels() {
   }
 }
 
-export async function getModel() {
+export async function getModel(formData) {
+  const schema = z.object({
+    modelId: z.string({ message: "Model is required" }),
+  });
+
   try {
-    const allModels = await getAllModels();
-    const modelId = allModels.data[2].id;
-    console.log(modelId);
+    const validatedFields = schema.safeParse({
+      modelId: formData.get("modelId"),
+    });
+
+    if (!validatedFields.success) {
+      console.error("Validation Error:", validatedFields.error.errors);
+      throw new Error(
+        validatedFields.error.errors[0]?.message || "Validation failed"
+      );
+    }
+
+    const modelId = validatedFields.data.modelId;
+    console.log("Validated Model ID:", modelId);
+
     const data = await fetch(`https://api.up2tom.com/v3/models/${modelId}`, {
       headers: {
         Authorization: `Token ${process.env.API_KEY}`,
@@ -49,7 +64,7 @@ export async function getModel() {
       method: "GET",
     });
     const model = await data.json();
-    console.log(model.data);
+    console.log(model);
     return model.data;
   } catch (error) {
     console.log(error);
