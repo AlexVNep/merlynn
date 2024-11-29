@@ -13,14 +13,14 @@ export default function ContInput({
     <>
       {label && (
         <label
-          className="mb-2 mt-2 block text-sm font-medium"
+          className="mb-3 mt-5 block text-xs font-medium text-gray-900"
           htmlFor={htmlFor}
         >
           {label}
         </label>
       )}
       <input
-        className="text-black rounded-md border border-gray-200"
+        className="peer text-black block rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
         type={type}
         value={value}
         name={name}

@@ -252,7 +252,7 @@ export async function logout() {
   redirect("/login");
 }
 
-export async function authenticate(prevState) {
+export async function authenticate(prevState, formData) {
   try {
     await signIn("credentials", formData);
   } catch (error) {
