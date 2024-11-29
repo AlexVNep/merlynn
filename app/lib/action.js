@@ -268,6 +268,39 @@ export async function authenticate(prevState, formData) {
   }
 }
 
+export async function getBatchState(prevState, formData) {
+  const modelId = formData.get("model");
+  try {
+    const res = await fetch(`https://api.up2tom.com/v3/batch/${modelId}`, {
+      headers: {
+        Authorization: `Token ${process.env.API_KEY}`,
+        "Content-Type": "application/vnd.api+json",
+      },
+      method: "GET",
+    });
+    const data = await res.json();
+    console.log("API Response:", data);
+
+    if (data.errors) {
+      console.error("API returned errors:", data.errors);
+    }
+
+    return {
+      ...prevState,
+      data: data,
+      message: "Request was successful",
+    };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      console.error("Validation errors:", error.errors);
+      return {
+        message: "Validation failed",
+        errors: error.errors,
+      };
+    }
+  }
+}
+
 export async function batchSubmit(prevState, formData) {
   const schema = z.object({
     model: z.string({ message: "Select a model" }),

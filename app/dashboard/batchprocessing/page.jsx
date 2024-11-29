@@ -7,7 +7,6 @@ export default async function Page() {
 
   return (
     <main>
-      <h1>Batch Processing</h1>
       <BatchForm modelsData={modelsData}></BatchForm>
     </main>
   );
