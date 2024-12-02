@@ -1,12 +1,15 @@
 "use client";
 
-// import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
+import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import { ArrowUpTrayIcon } from "@heroicons/react/20/solid";
 import { batchSubmit, getBatchState, deleteBatch } from "@/app/lib/action";
 import { useActionState } from "react";
 
 export default function BatchForm({ modelsData }) {
-  const [state, formAction] = useActionState(batchSubmit, undefined);
+  const [state, formAction, errorMessage] = useActionState(
+    batchSubmit,
+    undefined
+  );
   const [batchState, batchStateAction, error] = useActionState(
     getBatchState,
     null
@@ -23,7 +26,9 @@ export default function BatchForm({ modelsData }) {
     console.log(deleteBatchState);
   }
 
-  console.log(state);
+  if (state) {
+    console.log(state.data.data.jobs[0]);
+  }
 
   return (
     <>
@@ -82,9 +87,9 @@ export default function BatchForm({ modelsData }) {
                   />
                   <ArrowUpTrayIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
                 </div>
-                {/* {errorMessage && (
-              <p className="text-sm text-red-500">{errorMessage}</p>
-            )} */}
+                {errorMessage && (
+                  <p className="text-sm text-red-500">{errorMessage}</p>
+                )}
               </div>
             </div>
             <button
@@ -94,17 +99,25 @@ export default function BatchForm({ modelsData }) {
             >
               Submit
             </button>
+            {state?.data.data.jobs && (
+              <div className="mb-3 mt-5 block text-l font-medium text-gray-900">
+                <h3 className="text-xl pb-2">Submit Successful</h3>
+                <p>Filename: {state.data.data.jobs[0].filename}</p>
+                <p>ID: {state.data.data.jobs[0].id}</p>
+                <p>Uploaded: {state.data.data.jobs[0].uploaded}</p>
+              </div>
+            )}
             <div
               className="flex h-8 items-end space-x-1"
               aria-live="polite"
               aria-atomic="true"
             >
-              {/* {errorMessage && (
-            <>
-              <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
-              <p className="text-sm text-red-500">{errorMessage}</p>
-            </>
-          )} */}
+              {errorMessage && (
+                <>
+                  <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
+                  <p className="text-sm text-red-500">{errorMessage}</p>
+                </>
+              )}
             </div>
           </div>
         </form>
@@ -172,13 +185,6 @@ export default function BatchForm({ modelsData }) {
                       <h3>{file.filename}</h3>
                       <p>File ID: {file.id}</p>
                       <p>Date Created: {file.timestamp}</p>
-                      <button
-                        className="flex h-10  mt-4 items-center rounded-lg bg-blue-500 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 active:bg-blue-600 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
-                        type="submit"
-                        // aria-disabled={isPending}
-                      >
-                        Delete Batch{" "}
-                      </button>
                     </div>
                   ))}
                   {error && <p className="text-sm text-red-500">{error}</p>}
