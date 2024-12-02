@@ -360,3 +360,33 @@ export async function batchSubmit(prevState, formData) {
     };
   }
 }
+
+export async function deleteBatch(prevState, formData) {
+  const fileId = formData.get("fileId");
+  const modelId = formData.get("model");
+
+  try {
+    const res = await fetch(
+      `https://api.up2tom.com/v3/batch/${modelId}/${fileId}`,
+      {
+        headers: {
+          Authorization: `Token ${process.env.API_KEY}`,
+        },
+        method: "DELETE",
+      }
+    );
+
+    const data = await res.json();
+    console.log("DELTED:", data);
+
+    if (data.errors) {
+      console.error("API returned errors:", data.errors);
+    }
+
+    return {
+      ...prevState,
+      data: data,
+      message: "Request was successful",
+    };
+  } catch (error) {}
+}
