@@ -11,6 +11,7 @@ import { cookies } from "next/headers";
 import { deleteSession } from "/app/lib/session";
 import { signIn } from "/auth";
 import { AuthError } from "next-auth";
+import download from "downloadjs";
 
 main().catch((err) => console.log(err));
 
@@ -268,8 +269,8 @@ export async function authenticate(prevState, formData) {
   }
 }
 
-export async function getBatchState(prevState, formData) {
-  const modelId = formData.get("model");
+export async function getBatchState(prevState, formData, modelId) {
+  modelId = formData.get("model");
   try {
     const res = await fetch(`https://api.up2tom.com/v3/batch/${modelId}`, {
       headers: {
@@ -284,10 +285,11 @@ export async function getBatchState(prevState, formData) {
     if (data.errors) {
       console.error("API returned errors:", data.errors);
     }
+    console.log("Model ID: " + modelId);
 
     return {
       ...prevState,
-      data: data,
+      data: { data, modelId },
       message: "Request was successful",
     };
   } catch (error) {
@@ -298,6 +300,46 @@ export async function getBatchState(prevState, formData) {
         errors: error.errors,
       };
     }
+  }
+}
+
+export async function getSingleBatch(prevState, formData) {
+  const fileId = formData.get("fileId");
+  const modelId = formData.get("model");
+
+  try {
+    const res = await fetch(
+      `https://api.up2tom.com/v3/batch/${modelId}/${fileId}`,
+      {
+        headers: {
+          Authorization: `Token ${process.env.API_KEY}`,
+        },
+        method: "GET",
+      }
+    );
+
+    if (!res.ok) {
+      const errorDetails = await res.text();
+      throw new Error(`Failed to fetch file: ${errorDetails}`);
+    }
+
+    const fileBuffer = await res.arrayBuffer();
+
+    // Convert file buffer into a Blob (for downloading on the client)
+    const blob = new Blob([fileBuffer], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    console.log(blob, url);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${fileId}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    return { url, fileName: `${fileId}.csv` }; // Send back the download URL and file name
+  } catch (error) {
+    console.error("Error downloading file:", error);
+    throw new Error("Error fetching the file. Please try again.");
   }
 }
 
@@ -361,10 +403,7 @@ export async function batchSubmit(prevState, formData) {
   }
 }
 
-export async function deleteBatch(prevState, formData) {
-  const fileId = formData.get("fileId");
-  const modelId = formData.get("model");
-
+export async function deleteBatch(modelId, fileId) {
   try {
     const res = await fetch(
       `https://api.up2tom.com/v3/batch/${modelId}/${fileId}`,
@@ -376,6 +415,13 @@ export async function deleteBatch(prevState, formData) {
       }
     );
 
+    if (!response.ok) {
+      const errorDetails = await response.text();
+      throw new Error(
+        `Failed to delete batch. Status: ${response.status}. Details: ${errorDetails}`
+      );
+    }
+
     const data = await res.json();
     console.log("DELTED:", data);
 
@@ -385,8 +431,12 @@ export async function deleteBatch(prevState, formData) {
 
     return {
       ...prevState,
+      success: true,
       data: data,
       message: "Request was successful",
     };
-  } catch (error) {}
+  } catch (error) {
+    console.error("Error deleting batch:", error);
+    return { success: false, message: error.message };
+  }
 }
