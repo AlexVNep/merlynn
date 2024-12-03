@@ -12,7 +12,7 @@ export default function InputForm({ models }) {
 
   return (
     <>
-      <div className="w-3/12">
+      <div>
         <h1 className="mb-3 text-gray-500 text-2xl">Scenario Creation</h1>
         <form action={formAction}>
           <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
@@ -59,7 +59,7 @@ export default function InputForm({ models }) {
             </button>
           </div>
         </form>
-        {model ? <DynamicForm modelData={model}></DynamicForm> : null}
+        {model && <DynamicForm modelData={model}></DynamicForm>}
       </div>
     </>
   );
