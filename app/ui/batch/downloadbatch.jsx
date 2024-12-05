@@ -1,21 +1,44 @@
 "use client";
-import {
-  batchSubmit,
-  getBatchState,
-  deleteBatch,
-  getSingleBatch,
-} from "@/app/lib/action";
-import { useActionState, useEffect, useState, useCallback } from "react";
+import { getSingleBatch } from "@/app/lib/action";
+import { useState } from "react";
 export default function DownloadBatch({ modelsData }) {
   const models = modelsData.data;
   console.log(models);
 
   const [model, setModel] = useState("");
-  const [state, action] = useActionState(getSingleBatch, null);
-  console.log(model);
+  const [fileId, setFileId] = useState("");
+
+  const handleDownload = async (e) => {
+    e.preventDefault(); // Prevent form submission
+
+    if (!model || !fileId) {
+      console.log("Both Model and File ID are required.");
+      return;
+    }
+
+    try {
+      // Call the action function to download the file
+      const blob = await getSingleBatch(model, fileId);
+      const url = window.URL.createObjectURL(blob);
+
+      // Create a temporary anchor element to trigger the download
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${fileId}.csv`; // Adjust the filename and extension as needed
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <div className="w-full pt-10">
-      <form action={action} className="space-y-3">
+      <form onSubmit={handleDownload} className="space-y-3">
         <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
           <h1 className="mb-3 text-black text-2xl">Download a Batch File</h1>
           <div className="w-full">
@@ -61,14 +84,16 @@ export default function DownloadBatch({ modelsData }) {
                   id="fileId"
                   type="text"
                   name="fileId"
+                  value={fileId}
+                  onChange={(e) => setFileId(e.target.value)}
                 />
               </div>
             </div>
           </div>
+          <p className="text-black">6751933601eacd2577ecf3dc</p>
           <button
             className="flex h-10  mt-4 items-center rounded-lg bg-blue-500 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 active:bg-blue-600 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
             type="submit"
-            // aria-disabled={isPending}
           >
             Download File
           </button>

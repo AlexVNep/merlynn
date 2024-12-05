@@ -306,9 +306,10 @@ export async function getBatchState(modelId) {
   }
 }
 
-export async function getSingleBatch(formData) {
-  const fileId = formData.get("fileId");
-  const modelId = formData.get("model");
+export async function getSingleBatch(modelId, fileId) {
+  if (!modelId || !fileId) {
+    throw new Error("Both Model ID and File ID are required.");
+  }
 
   try {
     const res = await fetch(
@@ -322,27 +323,14 @@ export async function getSingleBatch(formData) {
     );
 
     if (!res.ok) {
-      const errorDetails = await res.text();
-      throw new Error(`Failed to fetch file: ${errorDetails}`);
+      throw new Error("Failed to download file. Please check the inputs.");
     }
 
-    const fileBuffer = await res.arrayBuffer();
-
-    // Convert file buffer into a Blob (for downloading on the client)
-    const blob = new Blob([fileBuffer], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    console.log(blob, url);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${fileId}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-
-    return { url, fileName: `${fileId}.csv` }; // Send back the download URL and file name
+    const blob = await res.blob();
+    return blob;
   } catch (error) {
     console.error("Error downloading file:", error);
-    throw new Error("Error fetching the file. Please try again.");
+    throw new Error(error.message || "An unexpected error occurred.");
   }
 }
 
