@@ -268,12 +268,8 @@ export async function authenticate(prevState, formData) {
   }
 }
 
-export async function getBatchState(prevState, formData, modelId) {
+export async function getBatchState(modelId) {
   try {
-    if (formData) {
-      modelId = formData.get("model");
-    }
-
     if (!modelId) {
       throw new Error("Model ID is required.");
     }

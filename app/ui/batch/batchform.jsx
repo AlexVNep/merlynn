@@ -15,50 +15,42 @@ export default function BatchForm({ modelsData }) {
   console.log(models);
 
   const [model, setModel] = useState("");
-
-  const [state, action] = useActionState(getBatchState, null);
+  console.log(model);
 
   const [batches, setBatches] = useState([]);
 
-  useEffect(() => {
-    setBatches(state);
-  }, [state]);
-
-  // Function to fetch batches, wrapped in useCallback
-  const fetchBatches = useCallback(async () => {
-    if (!model) return; // Skip fetching if no model is selected
+  const deleteHandler = async (fileId) => {
     try {
-      const response = await getBatchState(model); // Pass the selected model ID
-      setBatches(response?.data?.data?.files || []);
+      await deleteBatch(model, fileId); // Perform the delete operation
+      fetchBatches(); // Reload the batches after deletion
     } catch (err) {
-      console.error("Error fetching batches:", err);
+      console.error("Error deleting batch:", err);
     }
-  }, [model]);
-
-  const deleteHandler = useCallback(
-    async (fileId) => {
-      try {
-        await deleteBatch(model, fileId); // Perform the delete operation
-        fetchBatches(); // Reload the batches after deletion
-      } catch (err) {
-        console.error("Error deleting batch:", err);
-      }
-    },
-    [model, fetchBatches]
-  );
+  };
 
   // Load batches whenever the deleteHandler is called
   useEffect(() => {
+    const fetchBatches = async () => {
+      if (!model) return; // Skip fetching if no model is selected
+      try {
+        const response = await getBatchState(model); // Pass the selected model ID
+        console.log(response);
+        setBatches(response?.data?.data?.files || []);
+      } catch (err) {
+        console.error("Error fetching batches:", err);
+      }
+    };
     fetchBatches();
-  }, [fetchBatches]);
-
-  if (state) {
-    console.log(state);
-  }
+  }, [model]);
 
   if (batches) {
     console.log(batches);
   }
+
+  const handleModelSubmit = (e) => {
+    e.preventDefault(); // Prevent default form submission
+    fetchBatches(model); // Fetch batches manually
+  };
 
   // const [downloadState, downloadAction, downloadError] = useActionState(
   //   getSingleBatch,
@@ -72,7 +64,7 @@ export default function BatchForm({ modelsData }) {
   return (
     <>
       <div className="w-full">
-        <form action={action} className="space-y-3">
+        <form onSubmit={handleModelSubmit} className="space-y-3">
           <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-4">
             <div className="w-full">
               <div>
@@ -108,7 +100,7 @@ export default function BatchForm({ modelsData }) {
                 className="flex h-10  mt-4 items-center rounded-lg bg-blue-500 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 active:bg-blue-600 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
                 type="submit"
               >
-                Submit
+                Load Batches
               </button>
             </div>
           </div>
@@ -122,7 +114,7 @@ export default function BatchForm({ modelsData }) {
               Batches for Selected Model
             </h2>
             <div className="relative">
-              {batches?.data?.data?.data?.files?.map((file) => (
+              {batches.map((file) => (
                 <div
                   key={file.id}
                   className="peer text-black block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
