@@ -19,6 +19,18 @@ export default function BatchForm({ modelsData }) {
 
   const [batches, setBatches] = useState([]);
 
+  const fetchBatches = useCallback(async () => {
+    console.log(model);
+    if (!model) return; // Skip fetching if no model is selected
+    try {
+      const response = await getBatchState(model); // Pass the selected model ID
+      console.log(response);
+      setBatches(response?.data?.data?.data?.files || []);
+    } catch (err) {
+      console.error("Error fetching batches:", err);
+    }
+  }, [model]);
+
   const deleteHandler = async (fileId) => {
     try {
       await deleteBatch(model, fileId); // Perform the delete operation
@@ -30,27 +42,12 @@ export default function BatchForm({ modelsData }) {
 
   // Load batches whenever the deleteHandler is called
   useEffect(() => {
-    const fetchBatches = async () => {
-      if (!model) return; // Skip fetching if no model is selected
-      try {
-        const response = await getBatchState(model); // Pass the selected model ID
-        console.log(response);
-        setBatches(response?.data?.data?.files || []);
-      } catch (err) {
-        console.error("Error fetching batches:", err);
-      }
-    };
     fetchBatches();
-  }, [model]);
+  }, [model, fetchBatches]);
 
   if (batches) {
     console.log(batches);
   }
-
-  const handleModelSubmit = (e) => {
-    e.preventDefault(); // Prevent default form submission
-    fetchBatches(model); // Fetch batches manually
-  };
 
   // const [downloadState, downloadAction, downloadError] = useActionState(
   //   getSingleBatch,
@@ -64,7 +61,7 @@ export default function BatchForm({ modelsData }) {
   return (
     <>
       <div className="w-full">
-        <form onSubmit={handleModelSubmit} className="space-y-3">
+        <form className="space-y-3">
           <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-4">
             <div className="w-full">
               <div>

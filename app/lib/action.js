@@ -269,6 +269,7 @@ export async function authenticate(prevState, formData) {
 }
 
 export async function getBatchState(modelId) {
+  console.log(modelId);
   try {
     if (!modelId) {
       throw new Error("Model ID is required.");
@@ -291,7 +292,6 @@ export async function getBatchState(modelId) {
     console.log("Model ID: " + modelId);
 
     return {
-      ...prevState,
       data: { data, modelId },
       message: "Request was successful",
     };
