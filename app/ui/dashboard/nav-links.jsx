@@ -5,6 +5,7 @@ import {
   HomeIcon,
   DocumentDuplicateIcon,
   DocumentPlusIcon,
+  ArrowUpIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -26,6 +27,11 @@ const links = [
     name: "Batch Processing ",
     href: "/dashboard/batchprocessing",
     icon: UserGroupIcon,
+  },
+  {
+    name: "Batch Upload ",
+    href: "/dashboard/batchupload",
+    icon: ArrowUpIcon,
   },
 ];
 
