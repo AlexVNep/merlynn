@@ -11,7 +11,6 @@ import { cookies } from "next/headers";
 import { deleteSession } from "/app/lib/session";
 import { signIn } from "/auth";
 import { AuthError } from "next-auth";
-import download from "downloadjs";
 
 main().catch((err) => console.log(err));
 
@@ -270,8 +269,15 @@ export async function authenticate(prevState, formData) {
 }
 
 export async function getBatchState(prevState, formData, modelId) {
-  modelId = formData.get("model");
   try {
+    if (formData) {
+      modelId = formData.get("model");
+    }
+
+    if (!modelId) {
+      throw new Error("Model ID is required.");
+    }
+
     const res = await fetch(`https://api.up2tom.com/v3/batch/${modelId}`, {
       headers: {
         Authorization: `Token ${process.env.API_KEY}`,
@@ -284,6 +290,7 @@ export async function getBatchState(prevState, formData, modelId) {
 
     if (data.errors) {
       console.error("API returned errors:", data.errors);
+      throw new Error(data.errors[0]?.detail || "API Error");
     }
     console.log("Model ID: " + modelId);
 
@@ -415,26 +422,21 @@ export async function deleteBatch(modelId, fileId) {
       }
     );
 
-    if (!response.ok) {
-      const errorDetails = await response.text();
+    if (!res.ok) {
+      const errorDetails = await res.text();
       throw new Error(
-        `Failed to delete batch. Status: ${response.status}. Details: ${errorDetails}`
+        `Failed to delete batch. Status: ${res.status}. Details: ${errorDetails}`
       );
     }
 
-    const data = await res.json();
-    console.log("DELTED:", data);
-
-    if (data.errors) {
-      console.error("API returned errors:", data.errors);
+    let data;
+    const contentType = res.headers.get("Content-Type");
+    if (contentType && contentType.includes("application/json")) {
+      data = await res.json();
     }
-
-    return {
-      ...prevState,
-      success: true,
-      data: data,
-      message: "Request was successful",
-    };
+    console.log("Deleted Batch Response:", data || "No Content");
+    await getBatchState();
+    return { success: true, message: "Batch deleted successfully" };
   } catch (error) {
     console.error("Error deleting batch:", error);
     return { success: false, message: error.message };

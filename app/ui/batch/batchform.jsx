@@ -8,62 +8,76 @@ import {
   deleteBatch,
   getSingleBatch,
 } from "@/app/lib/action";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState, useCallback } from "react";
 
 export default function BatchForm({ modelsData }) {
-  const [state, formAction, errorMessage] = useActionState(
-    batchSubmit,
-    undefined
-  );
-  const [batchState, batchStateAction, batchError] = useActionState(
-    getBatchState,
-    null
-  );
-
-  const [downloadState, downloadAction, downloadError] = useActionState(
-    getSingleBatch,
-    null
-  );
-
-  const deleteHandler = async (fileId) => {
-    const confirmDelete = confirm(
-      "Are you sure you want to delete this batch?"
-    );
-    if (!confirmDelete) return;
-    try {
-      await deleteBatch(batchState.data.modelId, fileId);
-    } catch (err) {
-      console.error("Error deleting batch:", err);
-    }
-  };
-
   const models = modelsData.data;
   console.log(models);
 
-  if (batchState) {
-    console.log(batchState);
-  }
+  const [model, setModel] = useState("");
 
-  if (downloadState) {
-    console.log(downloadState);
-  }
+  const [state, action] = useActionState(getBatchState, null);
+
+  const [batches, setBatches] = useState([]);
+
+  useEffect(() => {
+    setBatches(state);
+  }, [state]);
+
+  // Function to fetch batches, wrapped in useCallback
+  const fetchBatches = useCallback(async () => {
+    if (!model) return; // Skip fetching if no model is selected
+    try {
+      const response = await getBatchState(model); // Pass the selected model ID
+      setBatches(response?.data?.data?.files || []);
+    } catch (err) {
+      console.error("Error fetching batches:", err);
+    }
+  }, [model]);
+
+  const deleteHandler = useCallback(
+    async (fileId) => {
+      try {
+        await deleteBatch(model, fileId); // Perform the delete operation
+        fetchBatches(); // Reload the batches after deletion
+      } catch (err) {
+        console.error("Error deleting batch:", err);
+      }
+    },
+    [model, fetchBatches]
+  );
+
+  // Load batches whenever the deleteHandler is called
+  useEffect(() => {
+    fetchBatches();
+  }, [fetchBatches]);
 
   if (state) {
     console.log(state);
   }
 
+  if (batches) {
+    console.log(batches);
+  }
+
+  // const [downloadState, downloadAction, downloadError] = useActionState(
+  //   getSingleBatch,
+  //   null
+  // );
+
+  // if (downloadState) {
+  //   console.log(downloadState);
+  // }
+
   return (
     <>
       <div className="w-full">
-        <form action={formAction} className="space-y-3">
-          <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
-            <h1 className="mb-3 text-black text-2xl">
-              Select a model and upload a .csv file to begin batch processing
-            </h1>
+        <form action={action} className="space-y-3">
+          <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-4">
             <div className="w-full">
               <div>
                 <label
-                  className="mb-3 mt-5 block text-xs font-medium text-gray-900"
+                  className="mb-3 mt-5 block text-4xl font-medium text-gray-900"
                   htmlFor="model"
                 >
                   Select Model
@@ -73,12 +87,13 @@ export default function BatchForm({ modelsData }) {
                     className="peer text-black block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
                     id="model"
                     name="model"
-                    defaultValue=""
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
                   >
                     <option value="" disabled>
                       -- Select a Model --
                     </option>
-                    {models.map((model, i) => (
+                    {models.map((model) => (
                       <option
                         key={model.attributes.name + model.id}
                         value={model.id}
@@ -88,11 +103,52 @@ export default function BatchForm({ modelsData }) {
                     ))}
                   </select>
                 </div>
-                {/* {errorMessage && (
-              <p className="text-sm text-red-500">{errorMessage}</p>
-            )} */}
               </div>
-              <div className="mt-4">
+              <button
+                className="flex h-10  mt-4 items-center rounded-lg bg-blue-500 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 active:bg-blue-600 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
+                type="submit"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      {batches && (
+        <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-1 mt-8">
+          <div className="mt-4">
+            <h2 className="mb-3 mt-5 block text-3xl font-medium text-gray-900">
+              Batches for Selected Model
+            </h2>
+            <div className="relative">
+              {batches?.data?.data?.data?.files?.map((file) => (
+                <div
+                  key={file.id}
+                  className="peer text-black block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
+                >
+                  <h3>{file.filename}</h3>
+                  <p>File ID: {file.id}</p>
+                  <p>Date Created: {file.timestamp}</p>
+                  <button
+                    className="flex h-10  mt-4 items-center rounded-lg bg-blue-500 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 active:bg-blue-600 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
+                    type="button"
+                    onClick={() => deleteHandler(file.id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+{
+  /* <div className="mt-4">
                 <label
                   className="mb-3 mt-5 block text-xs font-medium text-gray-900"
                   htmlFor="file"
@@ -114,13 +170,7 @@ export default function BatchForm({ modelsData }) {
                 )}
               </div>
             </div>
-            <button
-              className="flex h-10  mt-4 items-center rounded-lg bg-blue-500 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 active:bg-blue-600 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
-              type="submit"
-              // aria-disabled={isPending}
-            >
-              Submit
-            </button>
+            
             {state?.data.data.jobs && (
               <div className="mb-3 mt-5 block text-l font-medium text-gray-900">
                 <h3 className="text-xl pb-2">Submit Successful</h3>
@@ -143,9 +193,11 @@ export default function BatchForm({ modelsData }) {
             </div>
           </div>
         </form>
-      </div>
+      </div> */
+}
 
-      <div className="w-full pt-10">
+{
+  /* <div className="w-full pt-10">
         <form action={downloadAction} className="space-y-3">
           <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
             <h1 className="mb-3 text-black text-2xl">Download a Batch File</h1>
@@ -219,87 +271,6 @@ export default function BatchForm({ modelsData }) {
         </form>
       </div>
 
-      <div className="w-full pt-10">
-        <form action={batchStateAction} className="space-y-3">
-          <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
-            <h1 className="mb-3 text-black text-2xl">
-              Select a model and return the current state of the Batch
-            </h1>
-            <div className="w-full">
-              <div>
-                <label
-                  className="mb-3 mt-5 block text-xs font-medium text-gray-900"
-                  htmlFor="model"
-                >
-                  Select Model
-                </label>
-                <div className="relative">
-                  <select
-                    className="peer text-black block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-                    id="model"
-                    name="model"
-                    defaultValue=""
-                  >
-                    <option value="" disabled>
-                      -- Select a Model --
-                    </option>
-                    {models.map((model, i) => (
-                      <option
-                        key={model.attributes.name + model.id}
-                        value={model.id}
-                      >
-                        {model.attributes.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-            <button
-              className="flex h-10  mt-4 items-center rounded-lg bg-blue-500 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 active:bg-blue-600 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
-              type="submit"
-              // aria-disabled={isPending}
-            >
-              Submit
-            </button>
-            <div
-              className="flex h-8 items-end space-x-1"
-              aria-live="polite"
-              aria-atomic="true"
-            ></div>
-            {batchState ? (
-              <div className="mt-4">
-                <h2 className="mb-3 mt-5 block text-xs font-medium text-gray-900">
-                  State of Batch
-                </h2>
-                <div className="relative">
-                  {batchState.data.data.data.files?.map((file) => (
-                    <div
-                      key={file.id}
-                      className="peer text-black block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-                    >
-                      <h3>{file.filename}</h3>
-                      <p>File ID: {file.id}</p>
-                      <p>Date Created: {file.timestamp}</p>
-                      <button
-                        className="flex h-10  mt-4 items-center rounded-lg bg-blue-500 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 active:bg-blue-600 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
-                        type="submit"
-                        // aria-disabled={isPending}
-                        onClick={() => deleteHandler(file.id)}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  ))}
-                  {batchError && (
-                    <p className="text-sm text-red-500">{batchError}</p>
-                  )}
-                </div>
-              </div>
-            ) : null}
-          </div>
-        </form>
-      </div>
-    </>
-  );
+      
+}*/
 }
