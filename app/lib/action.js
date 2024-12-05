@@ -306,7 +306,7 @@ export async function getBatchState(modelId) {
   }
 }
 
-export async function getSingleBatch(prevState, formData) {
+export async function getSingleBatch(formData) {
   const fileId = formData.get("fileId");
   const modelId = formData.get("model");
 
