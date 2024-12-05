@@ -2,12 +2,7 @@
 
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import { ArrowUpTrayIcon } from "@heroicons/react/20/solid";
-import {
-  batchSubmit,
-  getBatchState,
-  deleteBatch,
-  getSingleBatch,
-} from "@/app/lib/action";
+import { getBatchState, deleteBatch, getSingleBatch } from "@/app/lib/action";
 import { useActionState, useEffect, useState, useCallback } from "react";
 
 export default function BatchForm({ modelsData }) {
@@ -44,6 +39,32 @@ export default function BatchForm({ modelsData }) {
   useEffect(() => {
     fetchBatches();
   }, [model, fetchBatches]);
+
+  const downloadHandler = async (fileId) => {
+    if (!model || !fileId) {
+      console.log("Both Model and File ID are required.");
+      return;
+    }
+
+    try {
+      // Call the action function to download the file
+      const blob = await getSingleBatch(model, fileId);
+      const url = window.URL.createObjectURL(blob);
+
+      // Create a temporary anchor element to trigger the download
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${fileId}.csv`; // Adjust the filename and extension as needed
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   if (batches) {
     console.log(batches);
